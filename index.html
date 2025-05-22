@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VeraMind Rate Card - Interactive Quote Generator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      color: #005ea2;
+      font-weight: 700;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: #fff;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      border-radius: 14px;
+      padding: 30px 40px;
+      box-sizing: border-box;
+    }
+    h2 {
+      color: #004a85;
+      margin-top: 0;
+      font-weight: 700;
+      font-size: 1.4rem;
+      margin-bottom: 15px;
+    }
+    section {
+      margin-bottom: 30px;
+    }
+    .checkbox-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+    label.checkbox-label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      border: 2px solid #0078d4;
+      border-radius: 8px;
+      padding: 10px 15px;
+      user-select: none;
+      min-width: 180px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    label.checkbox-label input[type="checkbox"] {
+      margin-right: 10px;
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+    label.checkbox-label:hover {
+      background-color: #0078d4;
+      color: white;
+    }
+    label.checkbox-label input[type="checkbox"]:checked + span {
+      font-weight: 700;
+      color: white;
+    }
+    .sub-service-block {
+      background: #e6f0fb;
+      border-left: 6px solid #0078d4;
+      padding: 14px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .sub-service-block h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: #005ea2;
+    }
+    .sub-service-list {
+      margin: 0;
+      padding-left: 0;
+      list-style-type: none;
+    }
+    .sub-service-list li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 15px;
+    }
+    .sub-service-list input[type="checkbox"] {
+      transform: scale(1.15);
+      cursor: pointer;
+      margin: 0;
+    }
+    .sub-service-label {
+      flex: 1;
+      cursor: pointer;
+    }
+    .quantity-slider-container {
+      min-width: 190px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    input[type="range"] {
+      flex: 1;
+      cursor: pointer;
+    }
+    .slider-value {
+      min-width: 32px;
+      text-align: center;
+      font-weight: 600;
+      color: #084a8f;
+    }
+    .addon-section {
+      background: #f0f4f8;
+      padding: 15px 20px;
+      border-radius: 10px;
+    }
+    .addon-checkbox {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+    .addon-checkbox input[type="checkbox"] {
+      transform: scale(1.15);
+      cursor: pointer;
+    }
+    .addon-label {
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      color: #0078d4;
+    }
+    .currency-wrapper {
+      text-align: right;
+      margin-bottom: 30px;
+    }
+    select#currencySelect {
+      font-size: 1rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1.5px solid #0078d4;
+      cursor: pointer;
+    }
+
+    button#generateQuoteBtn {
+      background: #0078d4;
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 700;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button#generateQuoteBtn:hover {
+      background-color: #005ea2;
+    }
+    #quoteOutput {
+      margin-top: 35px;
+      background: #def1ff;
+      border-radius: 14px;
+      padding: 25px 35px;
+      font-size: 1rem;
+      color: #003464;
+      box-shadow: 0 8px 24px rgba(0, 94, 162, 0.3);
+      max-height: 600px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    #quoteOutput h3 {
+      margin-top: 0;
+      font-weight: 700;
+      color: #004a85;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #quoteOutput h4 {
+      margin-bottom: 8px;
+      color: #004a85;
+    }
+    #quoteOutput ul {
+      margin: 5px 0 22px 20px;
+    }
+    #quoteOutput li {
+      margin-bottom: 6px;
+    }
+    #quoteTotal {
+      text-align: right;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 2px solid #0078d4;
+      color: #002855;
+    }
+    /* Responsive */
+    @media (max-width: 720px) {
+      .checkbox-grid {
+        flex-direction: column;
+      }
+      label.checkbox-label {
+        min-width: auto;
+        justify-content: flex-start;
+      }
+      .sub-service-list li {
+        flex-wrap: wrap;
+      }
+      .quantity-slider-container {
+        min-width: auto;
+        width: 100%;
+        margin-top: 6px;
+      }
+    }
+    .hidden { display: none !important; }
+    .sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+  </style>
+</head>
+<body>
+  <h1>VeraMind Rate Card – Interactive Quote Generator</h1>
+  <div class="container" role="main" aria-label="VeraMind pricing calculator">
+
+    <!-- 1. Main service selection -->
+    <section aria-labelledby="mainServicesHeader">
+      <h2 id="mainServicesHeader">1. Choose Main Service Categories</h2>
+      <div id="mainServicesContainer" class="checkbox-grid" role="group" aria-multiselectable="true">
+        <!-- Dynamically inserted main services checkboxes -->
+      </div>
+    </section>
+
+    <!-- 2. Sub-service selection, dynamically populated -->
+    <section aria-live="polite" aria-atomic="true" aria-labelledby="subServicesHeader">
+      <h2 id="subServicesHeader">2. Pick Specific Services & Customize</h2>
+      <div id="subServicesContainers">
+        <!-- Dynamically inserted sub-service blocks for checked main services -->
+      </div>
+    </section>
+
+    <!-- 3. Add-ons selection -->
+    <section id="addOnsSection" class="addon-section hidden" aria-live="polite" aria-atomic="true" aria-label="Add-ons and extras">
+      <h2>Add-Ons & Extras</h2>
+      <div>
+        <div class="addon-checkbox">
+          <input type="checkbox" id="extraRevision" name="extraRevision" aria-controls="extraRevisionCount" role="checkbox" />
+          <label for="extraRevision" class="addon-label">Extra Revision (₹300 / $4 per revision)</label>
+          <input type="range" id="extraRevisionCount" name="extraRevisionCount" value="0" min="0" max="10" step="1" disabled aria-label="Number of extra revisions" />
+          <span class="slider-value" id="extraRevisionCountVal">0</span>
+        </div>
+        <div class="addon-checkbox">
+          <input type="checkbox" id="expressDelivery" name="expressDelivery" aria-checked="false" />
+          <label for="expressDelivery" class="addon-label">24hr Delivery (+50% total price)</label>
+        </div>
+        <div class="addon-checkbox">
+          <input type="checkbox" id="sourceFiles" name="sourceFiles" data-priceInr="500" data-priceUsd="6" />
+          <label for="sourceFiles" class="addon-label">Source Files (₹500 / $6)</label>
+        </div>
+        <div class="addon-checkbox">
+          <input type="checkbox" id="contentStrategy" name="contentStrategy" data-priceInr="2000" data-priceUsd="24" />
+          <label for="contentStrategy" class="addon-label">Content Strategy Doc (₹2000 / $24)</label>
+        </div>
+        <div class="addon-checkbox">
+          <input type="checkbox" id="brandNaming" name="brandNaming" data-priceInr="2500" data-priceUsd="30" />
+          <label for="brandNaming" class="addon-label">Brand Naming (₹2500 / $30)</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Currency selector -->
+    <div class="currency-wrapper">
+      <label for="currencySelect">Select Currency:</label>
+      <select id="currencySelect" aria-label="Currency selector">
+        <option value="inr" selected>INR (₹)</option>
+        <option value="usd">USD ($)</option>
+      </select>
+    </div>
+
+    <!-- 5. Generate button -->
+    <button id="generateQuoteBtn" aria-describedby="generateQuoteDesc">
+      Generate Quote
+    </button>
+    <div id="generateQuoteDesc" class="sr-only">Generate price quote based on your selections</div>
+
+    <!-- 6. Quote output -->
+    <section id="quoteOutput" class="hidden" aria-live="polite" aria-atomic="true" aria-label="Quote summary"></section>
+
+  </div>
+
+  <script>
+    // Data for all main services and sub-services + prices + optional sliders
+    const data = {
+      branding: {
+        label: "Branding & Identity",
+        subs: [
+          { id: "bd1", label: "Logo Design - Basic", priceInr: 1200, priceUsd: 15, slider: { label: "Concepts", min:1, max:5, default:1, pricePerUnitInr:1200, pricePerUnitUsd:15, step:1 } },
+          { id: "bd2", label: "Logo Design - Standard", priceInr: 2500, priceUsd: 30 },
+          { id: "bd3", label: "Logo Design - Premium", priceInr: 4500, priceUsd: 55 },
+          { id: "bd4", label: "Brand Kit", priceInr: 3500, priceUsd: 42 },
+          { id: "bd5", label: "Business Card Design", priceInr: 1000, priceUsd: 12 },
+          { id: "bd6", label: "Letterhead/Invoice Template", priceInr: 800, priceUsd: 10 },
+          { id: "bd7", label: "Social Media Kit", priceInr: 1200, priceUsd: 15 }
+        ]
+      },
+      socialMedia: {
+        label: "Social Media Content",
+        subs: [
+          { id: "sm1", label: "Static Post (1)", priceInr: 400, priceUsd: 5, slider: { label:"Number of Posts", min:1, max:20, default:1, pricePerUnitInr:400, pricePerUnitUsd:5, step:1 } },
+          { id: "sm2", label: "Carousel Post (up to 5 slides)", priceInr: 900, priceUsd: 11 },
+          { id: "sm3", label: "Instagram Story Set (3)", priceInr: 750, priceUsd: 9 },
+          { id: "sm4", label: "Reel Cover Design", priceInr: 350, priceUsd: 4 },
+          { id: "sm5", label: "Quote/Value Post Pack (5)", priceInr: 1500, priceUsd: 18 },
+          { id: "sm6", label: "Weekly Pack (7 posts + 3 stories)", priceInr: 3500, priceUsd: 42 },
+          { id: "sm7", label: "Monthly Pack (20 posts + 10 stories)", priceInr: 9000, priceUsd: 108 }
+        ]
+      },
+      webDesign: {
+        label: "Web & UI Design",
+        subs: [
+          { id: "wd1", label: "Landing Page (design only)", priceInr: 3500, priceUsd: 42 },
+          { id: "wd2", label: "5-Page Website Design", priceInr: 9000, priceUsd: 108, slider: { label: "Pages", min:1, max:20, default:5, pricePerUnitInr:1800, pricePerUnitUsd:22, step:1 } },
+          { id: "wd3", label: "Wix Site Setup", priceInr: 6000, priceUsd: 72 },
+          { id: "wd4", label: "WordPress Starter Site", priceInr: 7500, priceUsd: 90 },
+          { id: "wd5", label: "Website Banner/Header", priceInr: 800, priceUsd: 10 },
+          { id: "wd6", label: "Website Icons/Illustrations (5)", priceInr: 1200, priceUsd: 15 }
+        ]
+      },
+      writing: {
+        label: "Writing & Content",
+        subs: [
+          { id: "wr1", label: "Blog Article (500–700 words)", priceInr: 1500, priceUsd: 18, slider: { label: "Articles", min:1, max:20, default:1, pricePerUnitInr:1500, pricePerUnitUsd:18, step:1 } },
+          { id: "wr2", label: "Website Copy (5 sections)", priceInr: 3000, priceUsd: 36 },
+          { id: "wr3", label: "Instagram Caption Pack (5)", priceInr: 1000, priceUsd: 12 },
+          { id: "wr4", label: "Product Descriptions (5)", priceInr: 1000, priceUsd: 12 },
+          { id: "wr5", label: "Email Copy (1 sequence of 3)", priceInr: 2000, priceUsd: 24 },
+          { id: "wr6", label: "Ad Copy (3 variations)", priceInr: 1200, priceUsd: 14 },
+          { id: "wr7", label: "SEO Keyword Research + Content Ideas", priceInr: 1800, priceUsd: 22 }
+        ]
+      },
+      video: {
+        label: "Video & Motion",
+        subs: [
+          { id: "vd1", label: "Instagram Reel Edit (under 60s)", priceInr: 1200, priceUsd: 14 },
+          { id: "vd2", label: "YouTube Short (basic)", priceInr: 1000, priceUsd: 12 },
+          { id: "vd3", label: "YouTube Thumbnail", priceInr: 500, priceUsd: 6 },
+          { id: "vd4", label: "Motion Poster (10s-15s)", priceInr: 1500, priceUsd: 18 },
+          { id: "vd5", label: "Audio Cleanup (1 min)", priceInr: 500, priceUsd: 6 },
+          { id: "vd6", label: "Subtitling (per 1 min)", priceInr: 400, priceUsd: 5 }
+        ]
+      },
+      development: {
+        label: "Development & Tech",
+        subs: [
+          { id: "dp1", label: "Basic Wix Website Setup", priceInr: 6000, priceUsd: 72 },
+          { id: "dp2", label: "HTML Landing Page", priceInr: 5000, priceUsd: 60 },
+          { id: "dp3", label: "GitHub Site Deployment", priceInr: 2500, priceUsd: 30 },
+          { id: "dp4", label: "Web Form (Contact/Lead)", priceInr: 1800, priceUsd: 22 },
+          { id: "dp5", label: "QR Code Generator Setup", priceInr: 800, priceUsd: 10 },
+          { id: "dp6", label: "Notion Page Design", priceInr: 2000, priceUsd: 24 }
+        ]
+      },
+      templates: {
+        label: "Templates & Docs",
+        subs: [
+          { id: "tp1", label: "Canva Template (1)", priceInr: 500, priceUsd: 6 },
+          { id: "tp2", label: "Resume/CV Design", priceInr: 800, priceUsd: 10 },
+          { id: "tp3", label: "Social Media Calendar (1 month)", priceInr: 1500, priceUsd: 18 },
+          { id: "tp4", label: "Invoice Template", priceInr: 600, priceUsd: 7 },
+          { id: "tp5", label: "Pitch Deck (5 slides)", priceInr: 2500, priceUsd: 30 },
+          { id: "tp6", label: "Portfolio Template (Canva)", priceInr: 2000, priceUsd: 24 }
+        ]
+      }
+    };
+
+    const mainContainer = document.getElementById('mainServicesContainer');
+    const subContainers = document.getElementById('subServicesContainers');
+    const addOnsSection = document.getElementById('addOnsSection');
+    const generateBtn = document.getElementById('generateQuoteBtn');
+    const quoteOutput = document.getElementById('quoteOutput');
+    const currencySelector = document.getElementById('currencySelect');
+    const extraRevCheckbox = document.getElementById('extraRevision');
+    const extraRevSlider = document.getElementById('extraRevisionCount');
+    const extraRevVal = document.getElementById('extraRevisionCountVal');
+
+    // Render main service checkboxes
+    function renderMainServices() {
+      for(const key in data){
+        const div = document.createElement('div');
+        div.className = 'main-service-checkbox';
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = 'main-' + key;
+        input.name = 'mainService';
+        input.value = key;
+        div.appendChild(input);
+
+        const label = document.createElement('label');
+        label.htmlFor = input.id;
+        label.textContent = data[key].label;
+        label.className = 'checkbox-label';
+        div.appendChild(label);
+
+        mainContainer.appendChild(div);
+
+        input.addEventListener('change', () => {
+          updateSubServicesVisibility();
+          updateAddOnsVisibility();
+          calculateTotalAndRender();
+        });
+      }
+    }
+
+    // Update sub-services containers based on checked main services
+    function updateSubServicesVisibility(){
+      const checkedMainServices = Array.from(document.querySelectorAll('input[name="mainService"]:checked')).map(cb => cb.value);
+      subContainers.innerHTML = '';
+      if(checkedMainServices.length === 0){
+        subContainers.innerHTML = '<p style="font-style:italic; color:#666;">Select one or more main services above to see specific options here.</p>';
+        return;
+      }
+      checkedMainServices.forEach(mainKey => {
+        const mainData = data[mainKey];
+        const section = document.createElement('section');
+        section.className = 'sub-service-block';
+        section.setAttribute('aria-label', mainData.label + ' Sub Services');
+
+        const h3 = document.createElement('h3');
+        h3.textContent = mainData.label;
+        section.appendChild(h3);
+
+        const ul = document.createElement('ul');
+        ul.className = 'sub-service-list';
+
+        mainData.subs.forEach(sub => {
+          const li = document.createElement('li');
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.id = `sub-${mainKey}-${sub.id}`;
+          cb.value = sub.id;
+          cb.dataset.inr = sub.priceInr;
+          cb.dataset.usd = sub.priceUsd;
+
+          const label = document.createElement('label');
+          label.htmlFor = cb.id;
+          label.textContent = sub.label;
+          label.className = 'sub-service-label';
+
+          li.appendChild(cb);
+          li.appendChild(label);
+
+          // If slider config present, add slider (quantity)
+          if(sub.slider){
+            const sliderCont = document.createElement('div');
+            sliderCont.className = 'quantity-slider-container';
+
+            const sliderLabel = document.createElement('label');
+            sliderLabel.htmlFor = `${cb.id}-slider`;
+            sliderLabel.textContent = sub.slider.label + ':';
+            sliderLabel.style.minWidth = '90px';
+
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = sub.slider.min;
+            slider.max = sub.slider.max;
+            slider.value = sub.slider.default;
+            slider.step = sub.slider.step || 1;
+            slider.id = `${cb.id}-slider`;
+            slider.disabled = true;
+
+            const sliderValue = document.createElement('span');
+            sliderValue.className = 'slider-value';
+            sliderValue.id = slider.id + '-val';
+            sliderValue.textContent = slider.value;
+
+            sliderCont.appendChild(sliderLabel);
+            sliderCont.appendChild(slider);
+            sliderCont.appendChild(sliderValue);
+
+            li.appendChild(sliderCont);
+
+            // Enable slider only if checkbox is checked
+            cb.addEventListener('change', e => {
+              slider.disabled = !e.target.checked;
+              if(!e.target.checked){
+                slider.value = sub.slider.default;
+                sliderValue.textContent = slider.value;
+                calculateTotalAndRender();
+              }
+              calculateTotalAndRender();
+            });
+
+            slider.addEventListener('input', () => {
+              sliderValue.textContent = slider.value;
+              calculateTotalAndRender();
+            });
+          } else {
+            cb.addEventListener('change', () => {
+              calculateTotalAndRender();
+            });
+          }
+
+          ul.appendChild(li);
+        });
+        section.appendChild(ul);
+        subContainers.appendChild(section);
+      });
+    }
+
+    // Show add-ons only if any sub-service checked
+    function updateAddOnsVisibility() {
+      const anySubChecked = subContainers.querySelectorAll('input[type="checkbox"]:checked').length > 0;
+      if(anySubChecked){
+        addOnsSection.classList.remove('hidden');
+      } else {
+        addOnsSection.classList.add('hidden');
+        resetAddOns();
+      }
+    }
+
+    // Reset add-ons inputs
+    function resetAddOns(){
+      extraRevCheckbox.checked = false;
+      extraRevSlider.value = 0;
+      extraRevVal.textContent = '0';
+      extraRevSlider.disabled = true;
+      document.getElementById('expressDelivery').checked = false;
+      document.getElementById('sourceFiles').checked = false;
+      document.getElementById('contentStrategy').checked = false;
+      document.getElementById('brandNaming').checked = false;
+    }
+
+    // Initialize event listeners on add-ons
+    function initAddOnsListeners(){
+      extraRevCheckbox.addEventListener('change', () => {
+        extraRevSlider.disabled = !extraRevCheckbox.checked;
+        if(!extraRevCheckbox.checked){
+          extraRevSlider.value = 0;
+          extraRevVal.textContent = '0';
+        }
+        calculateTotalAndRender();
+      });
+      extraRevSlider.addEventListener('input', () => {
+        extraRevVal.textContent = extraRevSlider.value;
+        calculateTotalAndRender();
+      });
+      ['expressDelivery', 'sourceFiles', 'contentStrategy', 'brandNaming'].forEach(id => {
+        document.getElementById(id).addEventListener('change', calculateTotalAndRender);
+      });
+    }
+
+    // Calculate total and return breakdown object for display
+    function calculateTotal(currency) {
+      let total = 0;
+      const breakdown = [];
+
+      const selectedMainKeys = Array.from(document.querySelectorAll('input[name="mainService"]:checked')).map(input=>input.value);
+
+      selectedMainKeys.forEach(mainKey => {
+        // Find the section for this mainKey
+        const mainSubsSection = Array.from(subContainers.children).find(s => s.querySelector('h3')?.textContent === data[mainKey].label);
+
+        if(!mainSubsSection) return;
+
+        const checkedSubs = mainSubsSection.querySelectorAll('input[type="checkbox"]:checked');
+
+        if(checkedSubs.length === 0) return;
+
+        let subItems = [];
+
+        checkedSubs.forEach(cb => {
+          const subId = cb.value;
+          const mainData = data[mainKey];
+          const subData = mainData.subs.find(s => s.id === subId);
+          if(!subData) return;
+
+          let quantity = 1;
+          if(subData.slider){
+            const slider = mainSubsSection.querySelector(`#sub-${mainKey}-${subId}-slider`);
+            if(slider) quantity = Number(slider.value);
+          }
+
+          const price = currency === 'usd'? subData.priceUsd*quantity : subData.priceInr*quantity;
+
+          subItems.push({name: subData.label + (subData.slider? ` x${quantity}` : ''), price});
+          total += price;
+        });
+
+        if(subItems.length){
+          breakdown.push({mainLabel: data[mainKey].label, subItems});
+        }
+      });
+
+      // Add-ons
+      const addOns = [];
+
+      const revOn = extraRevCheckbox.checked;
+      const revCount = Number(extraRevSlider.value);
+      if(revOn && revCount > 0){
+        const pricePer = currency==='usd'?4:300;
+        const price = pricePer * revCount;
+        addOns.push({name: `Extra Revisions (${revCount})`, price});
+        total += price;
+      }
+
+      if(document.getElementById('expressDelivery').checked){
+        total *= 1.5;
+        addOns.push({name: "24hr Express Delivery (+50%)", price: 0});
+      }
+      ['sourceFiles', 'contentStrategy', 'brandNaming'].forEach(id => {
+        const cb = document.getElementById(id);
+        if(cb.checked){
+          const price = currency === 'usd'? Number(cb.dataset.priceUsd) : Number(cb.dataset.priceInr);
+          addOns.push({name: cb.nextElementSibling.textContent, price});
+          total += price;
+        }
+      });
+
+      return {total, breakdown, addOns};
+    }
+
+    // Render quote summary in friendly format
+    function renderQuote({total, breakdown, addOns}, currency){
+      if(breakdown.length === 0){
+        quoteOutput.innerHTML = `<p style="font-style: italic; color:#444;">Please select main and specific services to generate a quote.</p>`;
+        quoteOutput.classList.remove('hidden');
+        return;
+      }
+      let html = `<h3>Your VeraMind Pricing Quote</h3>`;
+      html += `<p><strong>Currency:</strong> ${currency.toUpperCase()} ${currency==='inr'? '₹' : '$'}</p>`;
+
+      breakdown.forEach(b => {
+        html += `<h4>${b.mainLabel}</h4><ul>`;
+        b.subItems.forEach(sub=>{
+          html += `<li>${sub.name}: <strong>${currency==='inr'?`₹${sub.price}`:`$${sub.price.toFixed(2)}`}</strong></li>`;
+        });
+        html += `</ul>`;
+      });
+
+      if(addOns.length){
+        html += `<h4>Add-Ons & Extras</h4><ul>`;
+        addOns.forEach(addon => {
+          if(addon.price > 0){
+            html += `<li>${addon.name}: <strong>${currency==='inr'?`₹${addon.price}`:`$${addon.price.toFixed(2)}`}</strong></li>`;
+          } else {
+            // for express delivery no direct price because multiplier applied
+            html += `<li><em>${addon.name}</em></li>`;
+          }
+        });
+        html += `</ul>`;
+      }
+      html += `<div id="quoteTotal">Total: <strong>${currency==='inr'? `₹${total.toFixed(0)}` : `$${total.toFixed(2)}`}</strong></div>`;
+
+      quoteOutput.innerHTML = html;
+      quoteOutput.classList.remove('hidden');
+      quoteOutput.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    // Calculate and render quote
+    function calculateTotalAndRender(){
+      updateAddOnsVisibility();
+      const results = calculateTotal(currencySelector.value);
+      renderQuote(results, currencySelector.value);
+    }
+
+    function init(){
+      renderMainServices();
+      subContainers.innerHTML = '<p style="font-style:italic; color:#666;">Select one or more main services above to see specific options here.</p>';
+
+      initAddOnsListeners();
+
+      // Currency and generate button listeners
+      currencySelector.addEventListener('change', calculateTotalAndRender);
+
+      generateBtn.addEventListener('click', e => {
+        e.preventDefault();
+        calculateTotalAndRender();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+
+      // Delegate sub service checkbox and slider changes via event delegation for performance
+      subContainers.addEventListener('change', e => {
+        if(e.target.matches('input[type="checkbox"], input[type="range"]')){
+          calculateTotalAndRender();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
